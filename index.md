@@ -97,7 +97,7 @@ $ mkdir <project-name>
 Once you have uploaded everything to this directory, move to it:
 
 ```bash
-$ cd /apollo/<project-name>
+$ cd <project-name>
 ```
 
 ### Step 2: Create a Virtual Environment
@@ -120,7 +120,7 @@ $ source myenv/bin/activate
 
 ### Step 4: Install Required Python Packages
 
-If you have a requirements.txt, used that to install requried packages:
+If you have a requirements.txt, use that to install the requried packages:
 
 ```bash
 $ pip install -r requirements.txt
@@ -148,7 +148,7 @@ Create a new file named `job.sh` and write the following contents:
 #SBATCH --mem=4G                   # Memory (adjust as needed)
 
 # Navigate to project directory on shared filesystem
-cd /apollo/your_username/project
+cd /apollo/<username>/<project-name>
 
 # Activate the virtual environment
 source myenv/bin/activate
@@ -162,7 +162,7 @@ python main.py
 Use the `sbatch` command to submit the job script to the cluster. The SLURM scheduler will allocate resources and run the job when they become available.
 
 ```bash
-$ sbatch job.slurm
+$ sbatch job.sh
 ```
 
 ### Step 7: Monitor the Job
