@@ -1,6 +1,6 @@
-# DST-FIST Cluster User Guide
+# Access to the HPC Network at Data Science Lab
 
-This document serves as a guide for users of a high-performance computing (HPC) facility in the form of a cluster ("Apollo") that provides computational resources to researchers and students for running parallel and distributed programs.
+This document serves as a guide for users of a high-performance computing (HPC) facility in the form of a cluster ("Apollo"), available to researchers and students for running parallel and distributed programs.
 
 ## Accessing the Cluster
 
@@ -157,3 +157,7 @@ $ cat output.log
 ```bash
 $ cat error.log
 ```
+
+## Link to the GitHub Repository
+
+This 
