@@ -1,41 +1,14 @@
 # DST-FIST Cluster User Guide
 
-This document serves as a guide for users of the DST-FIST cluster "Apollo" at the Department of Computer Science and Engineering, Jadavpur University. The cluster is a high-performance computing (HPC) facility that provides computational resources to researchers and students for running parallel and distributed programs.
-
-## A Brief Overview of the Cluster
-
-### Node Configuration
-
-The cluster comprises of the following nodes:
-
-- 10 workstation nodes with Intel Xeon processors, 64 GB RAM, nVidia T1000 GPU with 4 GB of video RAM, a 512 GB SSD and a 1 TB hard drive each
-- 1 server node with Intel Xeon processor, 32 GB RAM, nVidia P6000 GPU with 24 GB of video RAM and 3 hard drives of 1 TB each
-
-For the time being, **Workstation-06** is set up as the master node. Please note that the compute nodes **may not be accessed directly**. All the computational tasks must be submitted to the master node for scheduling.
-
-### Shared Storage (NFS)
-
-A **shared storage space** is a defining characteristic of any HPC cluster. In the case of the DST-FIST cluster, the shared storage is hosted on the **master node** and is accessible via all the nodes in the cluster. The shared storage is mounted via **Network FileSystem** (NFS) at `/apollo` on all the nodes.
-
-### Scheduler (SLURM)
-
-The load manager and job scheduler used in the cluster is **Simple Linux Utility for Resource Management (SLURM)**. SLURM is a highly configurable, scalable, and fault-tolerant workload manager which is used on many of the world's clusters and supercomputers.
-
-The slurm system has three main components:
-
-- `slurmctld`: The central management daemon running on the **master node** that manages the cluster resources and schedules jobs
-
-- `slurmd`: The compute node daemon that runs on each **compute node** as well as the **master node** and communicates with the slurmctld daemon
-
-- **clients** that connect to the master node to submit jobs and monitor the cluster
-
-More information on how to use SLURM is provided later in this document.
+This document serves as a guide for users of a high-performance computing (HPC) facility in the form of a cluster ("Apollo") that provides computational resources to researchers and students for running parallel and distributed programs.
 
 ## Accessing the Cluster
 
 The cluster may be accessed by connecting to the **master node** via **Secure Shell (SSH)**. 
 
-The IP address of the master node is `172.24.56.204`. This IP address should be accessible from certain designated locations within the CSE department. To connect to the master node, use the following command:
+**The IP address of the master node is** `172.24.56.204`.
+
+This IP address should be accessible from certain designated locations within the CSE department. To connect to the master node, use the following command:
 
 ```bash
 $ ssh <username>@172.24.56.204
