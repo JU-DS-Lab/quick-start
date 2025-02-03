@@ -158,6 +158,3 @@ $ cat output.log
 $ cat error.log
 ```
 
-## Link to the GitHub Repository
-
-This 
