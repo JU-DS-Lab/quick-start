@@ -3,3 +3,6 @@ description: This is a comprehensive guide to using the DST FIST Cluster "Apollo
 repository: https://github.com/JU-MCSE-AI-DS/DST-FIST-Cluster-Docs
 site_branch: master
 timezone: Asia/Kolkata
+plugins:
+- jekyll-gfm-admonitions
+- jekyll-optional-front-matter
