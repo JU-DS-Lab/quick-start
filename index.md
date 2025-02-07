@@ -1,4 +1,4 @@
-# Access to the HPC Network at Data Science Lab
+# Quick Start Guide for the HPC Network at Data Science Lab
 
 This document serves as a guide for users of a high-performance computing (HPC) facility in the form of a cluster ("Apollo"), available to researchers and students for running parallel and distributed programs.
 
