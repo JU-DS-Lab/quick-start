@@ -6,12 +6,12 @@ This document serves as a guide for users of a high-performance computing (HPC) 
 
 The cluster may be accessed by connecting to the **master node** via **Secure Shell (SSH)**. 
 
-**The IP address of the master node is** `172.24.56.205`.
+**The IP address of the master node is** `172.24.56.211`.
 
 This IP address should be accessible from certain designated locations within the CSE department. To connect to the master node, use the following command:
 
 ```bash
-$ ssh <username>@172.24.56.205
+$ ssh <username>@172.24.56.211
 ```
 
 Replace `<username>` with the username provided to you. You will need to enter your password to log in.
