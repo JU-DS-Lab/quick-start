@@ -1,112 +1,103 @@
-# Quick Start Guide for the HPC Network at Data Science Lab
+# Accessing the Data Science Lab Cluster
 
-This document serves as a guide for users of a high-performance computing (HPC) facility in the form of a cluster ("Apollo") for running parallel and distributed programs.
+## Introduction
 
-## Accessing the Cluster
+The high-performance computing (HPC) cluster — "Apollo" — at the Data Science Lab is not a conventional computing cluster, as it comprises only two nodes: `DST-FIST-Server-01` and `DST-FIST-Server-02`. However, it still operates effectively as a functional proof of concept, with `DST-FIST-Server-02` serving as the master (as well as compute) node, and `DST-FIST-Server-01` functioning strictly as a compute node.
 
-The cluster may be accessed by connecting to the **master node** via **Secure Shell (SSH)**. 
+We use SLURM as the workload manager, given its widespread popularity and utilization in many state-of-the-art HPC systems. Additionally, we maintain an NFS-mounted directory at `/apollo`, which is accessible from both servers. This network storage consists of a RAID-5 array of HDDs with a total capacity of approximately 16 TB. We highly recommend utilizing this storage for code, datasets, virtual environments, cached files, and other pertinent data instead of the `/home` directory. This approach offers two primary advantages:
 
-**The IP address of the master node is** `172.24.56.211`.
+* It mitigates storage pressure on the boot disk, since `/home` and the root partition (`/`) reside on the same physical drive on both servers.
+* It guarantees accessibility across all machines. Furthermore, it can be accessed directly from the Data Science Lab workstations (by opening a file manager and navigating to `/apollo`).
 
-This IP address should be accessible from certain designated locations within the CSE department. To connect to the master node, use the following command:
+Ideally, `DST-FIST-Server-01` and `DST-FIST-Server-02` should possess equal computational power as members of a cluster; however, this is not the case. We recommend checking the system specifications in [the next section](#server-hardware-specifications) and deriving your own conclusions.
+
+Consequently, you may choose to execute your programs on the server in two distinct ways:
+
+* **The supported, recommended method**: using the SLURM scheduler
+* **The unofficial, quicker method**: directly connecting to one of the compute nodes and running your code on it
+
+### Server Hardware Specifications
+
+| Component | Specification |
+|---|---|
+| **Host** | DST-FIST-Server-01 |
+| **CPU** | Intel Xeon E5-2603 |
+| **Cores** | 12 |
+| **RAM** | 32 GB |
+| **GPU** | nVidia Quadro P6000 |
+| **GPU VRAM** | 24 GB |
+
+*Hardware specifications for DST-FIST-Server-01.*
+
+| Component | Specification |
+|---|---|
+| **Host** | DST-FIST-Server-02 |
+| **CPU** | 2 × Intel Xeon Silver 4514Y |
+| **Cores** | 2 × 32 = 64 |
+| **RAM** | 512 GB |
+| **GPU** | 2 × nVidia L4 |
+| **GPU VRAM** | 2 × 24 GB = 48 GB |
+
+*Hardware specifications for DST-FIST-Server-02.*
+
+## Connecting to the Master Node
+
+The master node, `DST-FIST-Server-02`, is assigned a static internal IP address: `172.24.56.211`. Please note that connecting to this node requires you to be on the departmental local area network (LAN). Ensure that you are either:
+
+* stationed at a lab machine connected via Ethernet, or
+* connected to the Wi-Fi network of one of the designated labs.
+
+> [!NOTE]
+> There is an active firewall on this server which explicitly permits access solely from specific labs within the department. If `ssh` fails or takes more than a few seconds, you may not have access to the server.
+
+Once you have opened a terminal, please execute the following command:
 
 ```bash
 $ ssh <username>@172.24.56.211
 ```
 
-Replace `<username>` with the username provided to you. You will need to enter your password to log in.
+You will be prompted to enter your password. Upon successful authentication, you will be granted access to a login shell.
 
-## Using SLURM
+## Running Programs
 
-Here we provide a very brief overview of the most commonly used SLURM commands. For a more detailed guide, please refer to the [official SLURM documentation](https://slurm.schedmd.com/) or use the `man` command to view the manual pages for each command.
-
-### Scheduling Jobs
-
-The slurm commands responsible for scheduling jobs are `srun` and `sbatch`.
-- `srun`: used to run a job on the cluster interactively
-
-    Usage: `$ srun [options] command [args]`
-- `sbatch`: used to submit a batch job to the cluster
-
-    Usage: `$ sbatch [options] job-script`
-
-### Monitoring Jobs
-
-The `squeue` command is used to monitor the jobs that are currently running or waiting in the queue.
-
-Usage: `$ squeue [options]`
-
-### Cancelling Jobs
-
-The `scancel` command is used to cancel a job that is currently running or waiting in the queue.
-
-Usage: `$ scancel [options] job-id`
-
-### Managing SLURM Configuration
-
-The `scontrol` command is used to view or modify the SLURM configuration. This includes settings up nodes, partitions, and other resources.
-
-> [!IMPORTANT]
-> Most `scontrol` commands require administrative privileges. Please consult the system administrator before making any changes to the SLURM configuration.
-
-## Example: Running a Python Program
-
-The Python programming language is widely used for machine learning, scientific computing and data analysis. Here we provide an example of how to run a simple python program on the cluster.
-
-### Step 1: Set Up and Navigate to Your Working Directory
-
-First, navigate to your designated directory inside the shared filesystem.
+Upon logging in, you can commence your work. In this guide, we assume that you are logged into `DST-FIST-Server-01` via `172.24.56.211`. The first step is to navigate to your workspace directory at `/apollo/<username>` before initiating any tasks.
 
 ```bash
 $ cd /apollo/<username>
 ```
 
-Create a new directory for your python project. Ensure that all your files pertaining to that project are stored there:
+The shell prompt should update to reflect the new working directory.
+
+> [!WARNING]
+> Working within `/home/<username>` is strictly discouraged, particularly on the master server. Because `/home` and the root partition (`/`) are situated on the same physical disk, exhausting the storage in `/home` can precipitate a catastrophic system failure. The `/apollo` mount provides ample storage space; please ensure you utilize it.
+
+Inside `/apollo/<username>`, create a new directory for your current project, or navigate into it if it has already been created.
 
 ```bash
-$ mkdir <project-name>
-```
-
-Once you have uploaded everything to this directory, move to it:
-
-```bash
+$ mkdir <project-name> # skip if it already exists
 $ cd <project-name>
 ```
 
-### Step 2: Create a Virtual Environment
+**NOTE:** The remainder of this guide assumes you are utilizing Python.
 
-If you have not already created a virtual environment, set one up:
+### Virtual Environments
 
-```bash
-$ python3 -m venv myenv
-```
+We recommend using [uv](https://docs.astral.sh/uv/) — a significantly fast Python package and project manager — to manage your virtual environments. If a virtual environment has already been create, you may activate it directly.
 
-This will create a folder named `myenv`, which will contain an isolated Python environment.
-
-### Step 3: Activate the Virtual Environment
-
-Activate the virtual environment before installing packages:
+**NOTE:** Before creating a new virtual environment, please ensure you are located in `/apollo/<username>/<project-name>`. You may inspect your prompt or use the `pwd` command to verify your current working directory.
 
 ```bash
-$ source myenv/bin/activate
+$ uv venv --python 3.12 # skip if it already exists
+$ source .venv/bin/activate
+$ which python # should display a new path
 ```
 
-### Step 4: Install Required Python Packages
+> [!NOTE]
+> Please note the leftmost section of your bash prompt after activating the virtual environment; it should display the name of the activated environment. If you are utilizing an alternative shell with a customized prompt, we assume you possess the requisite knowledge to configure it to display the virtual environment name correctly.
 
-If you have a requirements.txt, use that to install the requried packages:
+### Using SLURM
 
-```bash
-$ pip install -r requirements.txt
-```
-
-Otherwise, install the required packages individually:
-```bash
-$ pip install <package-1> <package-2> ...
-```
-
-### Step 5: Write a SLURM Job Script
-
-Create a new file named `job.sh` and write the following contents:
+To utilize SLURM, you must prepare a [batch script](https://slurm.schedmd.com/sbatch.html) that defines the resources required and the commands to execute. Create a new file (e.g., `job.sh`) and include the appropriate `#SBATCH` directives at the beginning. Ensure that you activate your virtual environment using its absolute path within the script.
 
 ```bash
 #!/bin/bash
@@ -120,41 +111,71 @@ Create a new file named `job.sh` and write the following contents:
 #SBATCH --gpus-per-node=1          # Number of GPUs
 #SBATCH --mem=4G                   # Memory (adjust as needed)
 
-# Navigate to project directory on shared filesystem
-cd /apollo/<username>/<project-name>
+# Activate the virtual environment (please use full path here)
+source /apollo/<username>/<project-name>/.venv/bin/activate
 
-# Activate the virtual environment
-source myenv/bin/activate
-
-# Run the Python program
 python main.py
 ```
 
-### Step 6: Submit the Job
-
-Use the `sbatch` command to submit the job script to the cluster. The SLURM scheduler will allocate resources and run the job when they become available.
+Once your script is ready, you can submit the job to the cluster scheduler using the `sbatch` command:
 
 ```bash
 $ sbatch job.sh
 ```
 
-### Step 7: Monitor the Job
-
-Use the `squeue` command to monitor the status of the job:
+To monitor the status of your submitted jobs, use the `squeue` command:
 
 ```bash
 $ squeue -u <username>
 ```
 
-### Step 8: Viewing the Output
+### Running Directly
 
-Once the job has completed, you can view the output and error logs:
+If you opt for the unsupported method of running your code directly on the server, first ensure that your virtual environment is activated by verifying the shell prompt or using the `which python` command.
 
-```bash
-$ cat output.log
-```
+After activating the environment, you may run your python script directly:
 
 ```bash
-$ cat error.log
+$ python <path-to-script>
 ```
 
+#### Using Interactive Notebooks (JupyterLab)
+
+[JupyterLab](https://jupyter.org/) provides an interactive web-based environment for executing code, visualizing data, and documenting the process via interactive "notebooks". It is highly beneficial for exploratory data analysis and iterative development.
+
+> [!WARNING]
+> Active Jupyter Notebook kernels can consume significant system memory (RAM) and video memory (VRAM) if left idling. Since these resources are shared, failing to release them may prevent other users from submitting jobs via SLURM or running their own workloads. To mitigate this, always ensure you properly shut down the Jupyter server when finished or [restart/kill the specific kernels](https://jupyterlab.readthedocs.io/en/stable/user/running.html) when they are no longer in active use.
+
+To start a JupyterLab instance directly, execute the following command on the server you're currently logged into:
+
+```bash
+$ jupyter lab --ip='*' --IdentityProvider.token="" --PasswordIdentityProvider.hashed_password=""
+```
+
+After the server starts, open a web browser on your local machine and navigate to [http://172.24.56.211:8888/](http://172.24.56.211:8888/) (8888 is the default, but it may be different for you; please check the terminal output to confirm).
+
+> [!WARNING]
+> Starting JupyterLab with an empty token and no password presents a significant security risk, as anyone in one of the allowed labs accessing the departmental LAN could potentially access your JupyterLab instance.
+
+For instructions on configuring proper authentication and securing your Jupyter server, please refer to the [official Jupyter Server security documentation](https://jupyter-server.readthedocs.io/en/latest/operators/security.html).
+
+#### Using Visual Studio Code
+
+[Visual Studio Code](https://code.visualstudio.com/) (VS Code) is a highly versatile, feature-rich code editor that has become widely popular today. We specifically mention it here for interacting with the cluster because of its beginner-friendly interface and excellent built-in support for remote development via SSH.
+
+To connect to the cluster using VS Code, follow these steps:
+
+1. Click the **Remote Window** icon at the absolute bottom-left corner of the VS Code interface (it looks like two brackets "`><`").
+2. Select **Connect to Host...** and then **SSH** from the dropdown list.
+3. If this is your first time connecting, please set up the remote host:
+   1. Wait a moment for the **Remote - SSH** extension to initialize or auto-install if prompted.
+   2. Select **+ Add New SSH Host...**.
+   3. Enter the following connection command:
+      `ssh <username>@172.24.56.211` and press `Enter`.
+   4. Select your user-level SSH configuration file (typically the first option in the list).
+   5. Click the Remote Window button in the bottom-left corner again to return to the selection menu.
+4. Select **Connect to Host...**.
+5. Select the entry for **172.24.56.211**.
+6. Once the connection is established and the new remote window opens, the status bar button in the bottom-left corner will reflect the remote hostname. You may now open folders on the server and begin your work.
+
+For more detailed assistance, please refer to the [official VS Code Remote SSH documentation](https://aka.ms/vscode-remote/ssh).
